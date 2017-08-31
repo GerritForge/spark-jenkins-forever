@@ -17,9 +17,14 @@ object Transformers {
     def getLogMessages(path: String)(implicit sc: SparkSession): Dataset[String] = {
       import sc.implicits._
 
-      ds.filter(_.data.url == path).sort(col("timestamp")).flatMap {
-        log => log.message.map(s"[${log.timestamp}] " + _)
-      }
+      ds.filter(_ != null)
+        .filter(_.data != null)
+        .filter(_.data.url != null)
+        .filter(_.data.url == path)
+        .sort(col("timestamp"))
+        .flatMap {
+          log => log.message.map(s"[${log.timestamp}] " + _)
+        }
     }
   }
 
