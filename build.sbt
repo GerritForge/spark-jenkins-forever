@@ -21,7 +21,7 @@ libraryDependencies ++= Seq(
   "org.scalatest" %% "scalatest" % "3.0.1" % "test"
 )
 
-assemblyJarName in assembly := "jenkins-gerrit-events-etl-shaded.jar"
+assemblyJarName in assembly := "jenkins-forever-etl-shaded.jar"
 
 mainClass in (Compile,run) := Some("com.gerritforge.jw2017.job.Main")
 

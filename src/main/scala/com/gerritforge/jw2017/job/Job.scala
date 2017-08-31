@@ -1,21 +1,23 @@
 package com.gerritforge.jw2017.job
 
-import com.gerritforge.jw2017.model.Event
-import org.apache.spark.SparkContext
+import com.gerritforge.jw2017.model.JenkinsLogMessage
 import org.apache.spark.rdd.RDD
-import com.gerritforge.jw2017.etl.Readers._
-import com.gerritforge.jw2017.etl.Transformers._
-import org.apache.spark.sql.{DataFrame, Dataset, SparkSession}
+import org.apache.spark.sql.{Dataset, SparkSession}
 
 trait Job {
 
-  def loadTextFiles(inputDir: String)(implicit sc: SparkSession): RDD[String] = sc.sparkContext.textFile(s"$inputDir/*")
+  def loadTextFiles(inputDir: String)(implicit sc: SparkSession): RDD[String] = {
+    sc.hadoopConfiguration.set("mapreduce.input.fileinputformat.input.dir.recursive","true")
+    sc.sparkContext.textFile(s"$inputDir/*")
+  }
 
-  def run(jenkinsRdd: Option[RDD[String]], gerritRdd: Option[RDD[String]])
-         (implicit sc: SparkSession): Dataset[Event] = {
-    val jenkinsEvents = jenkinsRdd.map(_.jenkinsLogs.toEventFlow.filterChanges).toSeq
-    val gerritEvents = gerritRdd.map(_.gerritEvents.toEventFlow.filterChanges).toSeq
+  def run(rawJsonRdd: RDD[String])(implicit sc: SparkSession): Map[String,Dataset[String]] = {
+    import com.gerritforge.jw2017.etl.Readers._
+    import com.gerritforge.jw2017.etl.Transformers._
+    import sc.implicits._
 
-    (jenkinsEvents ++ gerritEvents).reduce(_ union _).calculateDurations()
+    val logs = rawJsonRdd.jsonToDataframe().as[JenkinsLogMessage]
+    val paths = logs.getLogPaths().collect()
+    paths.map(path => (path, logs.getLogMessages(path))).toMap
   }
 }
