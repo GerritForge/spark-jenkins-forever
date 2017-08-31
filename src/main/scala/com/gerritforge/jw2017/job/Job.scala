@@ -16,7 +16,7 @@ trait Job {
     import sc.implicits._
 
     val logs = rawJsonRdd.jsonToDataframe().as[JenkinsLogMessage]
-    val paths = logs.getLogPaths().collect()
+    val paths = logs.getLogPaths().collect().filterNot(_ == null)
     paths.map(path => (path, logs.getLogMessages(path))).toMap
   }
 }
