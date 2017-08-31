@@ -7,5 +7,4 @@ JAR=./target/scala-2.11/jenkins-forever-etl-shaded.jar
 spark-submit \
     --conf spark.hadoop.mapreduce.input.fileinputformat.input.dir.recursive=true \
     $JAR \
-    -j src/test/resources \
-    -o target/out
+    $*

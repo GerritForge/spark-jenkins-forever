@@ -45,7 +45,7 @@ class JenkinsLogETLSpec extends SparkEtlSpec with TestDataFixture with Inside wi
     val logMessages = logsDs.getLogMessages("path1").collect()
 
     logMessages should have size 2
-    logMessages should contain inOrderOnly("foo", "bar")
+    logMessages should contain inOrderOnly("[2017-01-01] foo", "[2017-01-02] bar")
   }
 
   "ETL Job" should "extract the list of logs Datasets" in withSpark { implicit sc =>
@@ -59,6 +59,8 @@ class JenkinsLogETLSpec extends SparkEtlSpec with TestDataFixture with Inside wi
 
     logsDs should have size 1
     logsDs.keys should contain ("job/pipeline/job/33%252F33%252F4/1/")
-    logsDs.values.head.collect should contain inOrderOnly("Building", " > git rev-parse --is-inside-work-tree # timeout=10")
+    logsDs.values.head.collect should contain inOrderOnly(
+      "[2017-08-31T00:36:23.000Z] Building",
+      "[2017-08-31T00:36:23.000Z]  > git rev-parse --is-inside-work-tree # timeout=10")
   }
 }
