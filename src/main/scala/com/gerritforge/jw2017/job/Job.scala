@@ -7,7 +7,6 @@ import org.apache.spark.sql.{Dataset, SparkSession}
 trait Job {
 
   def loadTextFiles(inputDir: String)(implicit sc: SparkSession): RDD[String] = {
-    sc.hadoopConfiguration.set("mapreduce.input.fileinputformat.input.dir.recursive","true")
     sc.sparkContext.textFile(s"$inputDir/*")
   }
 

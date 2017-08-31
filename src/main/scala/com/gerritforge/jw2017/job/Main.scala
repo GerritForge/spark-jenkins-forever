@@ -36,7 +36,7 @@ object Main extends App with Job {
       val logsFiles = run(inputRdd)
 
       logsFiles.foreach {
-        case (filePath, ds) => ds.rdd.saveAsTextFile(s"${conf.outputDir}/${filePath}")
+        case (filePath, ds) => ds.rdd.coalesce(1).saveAsTextFile(s"${conf.outputDir}/${filePath}")
       }
   }
 }
